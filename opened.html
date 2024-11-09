@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>ChatGPT Web App</title>
+  <base target="_top">
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #f0f8ff;
+      width: 100%;
+      height: 100vh;
+      margin: 0;
+    }
+
+    * {
+      -webkit-user-select: none; /* Chrome, Safari, Opera用 */
+      -moz-user-select: none; /* Firefox用 */
+      -ms-user-select: none; /* Internet Explorer, Edge用 */
+      user-select: none; /* 標準構文 */
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif; /* ゴシック体フォントを指定 */
+    }
+
+    .email-form-container {
+      display: none;
+      margin-bottom: 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    .email-form-container2 {
+      display: none;
+      margin-bottom: 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    .email-boxes2 {
+      display: flex;
+      justify-content: space-between;
+      margin: 0 auto;
+    }
+
+    #keypadPassword {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .email-input,
+    .email-submit-button {
+      display: block;
+      margin: 10px auto;
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 50px;
+    }
+
+    .email-label {
+      margin-right: 10px;
+    }
+
+    .email-submit-button {
+      border: none;
+      background-color: #73b2e6;
+      color: white;
+      cursor: pointer;
+    }
+
+    .email-submit-button:hover {
+      background-color: #5a9bd5;
+    }
+
+    .email-submit-button:disabled {
+        background-color: #ccc; /* 無効時の背景色 */
+        color: #666; /* 無効時のテキスト色 */
+        cursor: not-allowed; /* カーソルを変更 */
+    }
+
+    .email-submit-button:disabled:hover {
+        background-color: #ccc; /* ホバー時の背景色変更を無効化 */
+    }
+
+
+    #keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .email-boxes {
+      display: flex;
+      justify-content: space-between;
+      margin: 0 auto;
+    }
+
+    .email-box {
+      width: 10px;
+      padding: 8px;
+      margin: 2px;
+      text-align: center;
+      border: none; /* 全ての境界線を消去 */
+      border-bottom: 1px solid #ddd; /* 下線のみを表示 */
+      background-color: #f0f8ff; /* 背景色をbody要素の背景色に合わせる */
+      font-size: 16px;
+    }
+
+    #emailBoxes > input:not(:last-child) {
+      margin-right: 0;
+    }
+
+    .keypad-button {
+      padding: 10px;
+      border: none; /* 枠線を削除 */
+      background-color: #f0f8ff; /* 背景色を #f0f8ff に設定 */
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .keypad-button:hover {
+      background-color: #f0f8ff;
+    }
+
+    #container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+
+    #chatContainer {
+      width: 240px;
+      height: 320px;
+      border: 1px solid black;
+      overflow-y: scroll;
+      margin: 10px;
+      padding: 10px;
+      background-color: #fffafa;
+      border-radius: 30px;
+    }
+
+    .message {
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 15px;
+      color: white;
+    }
+
+    .user1 {
+      background-color: #b0c4de;
+      margin-top: 20px;
+    }
+
+    .user2 {
+      background-color: #73b2e6;
+      margin-top: 8px;
+    }
+
+    #messageInput {
+      margin-top: 10px;
+      margin-left: 9px;
+      width: 180px;
+      padding: 14px;
+      border-radius: 50px;
+      flex-grow: 1;
+      border: 1px solid blue;
+      font-size: 16px;
+      color: black;
+      background-color: solid white;
+    }
+
+    #sendButton {
+      padding: 10px;
+      width: 45px;
+      height: 45px;
+      margin-top: 10px;
+      margin-left: 2px;
+      background-color: white;
+      color: black;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 15px;
+      transition: background-color 0.3s;
+    }
+
+    #sendButton:disabled {
+      background-color: #ccc; /* 無効化時の背景色 */
+      color: #666; /* 無効化時のテキスト色 */
+      cursor: not-allowed; /* カーソルを変更 */
+    }
+
+    #sendButton:disabled:hover {
+      background-color: #ccc; /* hover効果を無効化 */
+    }
+
+    #sendButton:hover {
+      background-color: #73b2e6;
+      color: white;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+
+    .switch input { 
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    input:checked + .slider {
+      background-color: #2196F3;
+    }
+
+    input:focus + .slider {
+      box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+      -webkit-transform: translateX(26px);
+      -ms-transform: translateX(26px);
+      transform: translateX(26px);
+    }
+
+    .slider.round {
+      border-radius: 34px;
+    }
+
+    .slider.round:before {
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-form-container" id="emailFormContainer">
+  <h1>ログイン</h1>
+    <div id="emailBoxes" class="email-boxes">
+      <input type="text" id="box1" class="email-box" maxlength="1" readonly>
+      <input type="text" id="box2" class="email-box" maxlength="1" readonly>
+      <input type="text" id="box3" class="email-box" maxlength="1" readonly>
+      <input type="text" id="box4" class="email-box" maxlength="1" readonly>
+      <input type="text" id="box5" class="email-box" maxlength="1" readonly>
+      <input type="text" id="box6" class="email-box" maxlength="1" readonly>
+      <input type="text" id="box7" class="email-box" maxlength="1" readonly>
+      <input type="text" id="box8" class="email-box" maxlength="1" readonly>
+    </div>
+  <span>@example.com</span>
+  <div id="keypad">
+    <button class="keypad-button" onclick="addDigit('1')">1</button>
+    <button class="keypad-button" onclick="addDigit('2')">2</button>
+    <button class="keypad-button" onclick="addDigit('3')">3</button>
+    <button class="keypad-button" onclick="addDigit('4')">4</button>
+    <button class="keypad-button" onclick="addDigit('5')">5</button>
+    <button class="keypad-button" onclick="addDigit('6')">6</button>
+    <button class="keypad-button" onclick="addDigit('7')">7</button>
+    <button class="keypad-button" onclick="addDigit('8')">8</button>
+    <button class="keypad-button" onclick="addDigit('9')">9</button>
+    <button class="keypad-button" onclick="backspace()">←</button>
+    <button class="keypad-button" onclick="addDigit('0')">0</button>
+    <button class="keypad-button" onclick="clearInput()">クリア</button>
+  </div>
+  <button id="emailSubmit" class="email-submit-button">パスコード入力画面へ</button>
+</div>
+
+<div class="email-form-container2" id="passwordFormContainer">
+  <h1>ログイン</h1>
+  <div id="passwordBoxes" class="email-boxes">
+    <input type="text" id="passwordBox1" class="email-box" maxlength="1" readonly>
+    <input type="text" id="passwordBox2" class="email-box" maxlength="1" readonly>
+    <input type="text" id="passwordBox3" class="email-box" maxlength="1" readonly>
+    <input type="text" id="passwordBox4" class="email-box" maxlength="1" readonly>
+    <input type="text" id="passwordBox5" class="email-box" maxlength="1" readonly>
+    <input type="text" id="passwordBox6" class="email-box" maxlength="1" readonly>
+    <input type="text" id="passwordBox7" class="email-box" maxlength="1" readonly>
+    <input type="text" id="passwordBox8" class="email-box" maxlength="1" readonly>
+  </div>
+  <span>パスコードを入力</span>
+  <div id="keypadPassword">
+    <button class="keypad-button" onclick="addDigitToPassword('1')">1</button>
+    <button class="keypad-button" onclick="addDigitToPassword('2')">2</button>
+    <button class="keypad-button" onclick="addDigitToPassword('3')">3</button>
+    <button class="keypad-button" onclick="addDigitToPassword('4')">4</button>
+    <button class="keypad-button" onclick="addDigitToPassword('5')">5</button>
+    <button class="keypad-button" onclick="addDigitToPassword('6')">6</button>
+    <button class="keypad-button" onclick="addDigitToPassword('7')">7</button>
+    <button class="keypad-button" onclick="addDigitToPassword('8')">8</button>
+    <button class="keypad-button" onclick="addDigitToPassword('9')">9</button>
+    <button class="keypad-button" onclick="backspacePassword()">←</button>
+    <button class="keypad-button" onclick="addDigitToPassword('0')">0</button>
+    <button class="keypad-button" onclick="clearPasswordInput()">クリア</button>
+  </div>
+  <button id="passwordSubmit" class="email-submit-button">利用規約に同意してログイン</button>
+</div>
+
+<div id="container">
+  <div id="chatContainer"></div>
+  <input id="messageInput" type="text" placeholder="ここに入力">
+  <button id="sendButton" onclick="sendMessage()">▶</button>
+</div>
+
+<div id="switchContainer" style="margin-bottom: 20px;">
+  <label class="switch">
+    <input type="checkbox" id="toggleSwitch">
+    <span class="slider round"></span>
+  </label>
+</div>
+
+<div id="reroad" style="display: none; text-align: center;">
+  <h1>再読み込みのお願い</h1>
+  <p>プログラムの関係上ページを開いてから2分経過すると、この画面が表示されます。<br>解除するには再読み込みしてください。</p>
+</div>
+
+<div id="thankYouContainer" style="display: none; text-align: center;">
+  <h1>ご利用<br>ありがとうございました</h1>
+  <p>またのご利用をお待ちしています！</p>
+  <p><br>生徒会</p>
+</div>
+
+<script>
+  var loggedInEmail = ''; // ログインに成功したメールアドレスを保存する変数
+  var loginSuccessful = false; //ログイン成功フラグ
+
+  document.getElementById('emailSubmit').addEventListener('click', submitEmail);
+  document.getElementById('toggleSwitch').addEventListener('change', toggleEmailForm);
+
+  // ページ読み込み時にタイマーを開始
+  document.addEventListener('DOMContentLoaded', function() {
+    startLoginTimer();
+  });
+
+  var loginTimerStart;
+  var loginInterval; // タイマー用のインターバル
+
+  function startLoginTimer() {
+    var timeout = 2 * 60 * 1000; // 2分（ミリ秒単位）
+    loginTimerStart = new Date().getTime(); // タイマー開始時間を設定
+    var endTime = loginTimerStart + timeout;
+
+    loginInterval = setInterval(function() {
+      var currentTime = new Date().getTime();
+      if (currentTime >= endTime) {
+        clearInterval(loginInterval);
+        
+        disableKeyboardInput(); // キーボード入力を無効化
+
+        // 既存のコンテンツをフェードアウトさせる
+        fadeOut(document.getElementById('switchContainer'), 500)
+        fadeOut(document.getElementById('emailFormContainer'), 500);
+        fadeOut(document.getElementById('passwordFormContainer'), 500);
+            
+        // reroad要素をフェードインで表示する
+        setTimeout(function() {
+          fadeIn(document.getElementById('reroad'), 1000);
+        }, 700);
+      }
+    }, 1000);
+  }
+
+  // キーボード入力を無効にする関数
+  function disableKeyboardInput() {
+    document.addEventListener('keydown', function(event) {
+      event.preventDefault(); // イベントのデフォルトの動作を防止
+      return false; // イベント伝播を停止
+    });
+  }
+
+  function toggleEmailForm() {
+    var emailForm = document.querySelector('.email-form-container');
+    if(this.checked) {
+      fadeIn(emailForm, 1000);
+      document.getElementById('switchContainer').style.display = 'none';
+    } else {
+      fadeOut(emailForm, 1000);
+    }
+  }
+
+  function fadeIn(element, duration) {
+    element.style.opacity = 0;
+    element.style.display = 'block';
+    var last = +new Date();
+    var tick = function() {
+      element.style.opacity = +element.style.opacity + (new Date() - last) / duration;
+      last = +new Date();
+      if (+element.style.opacity < 1) {
+        (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+      }
+    };
+    tick();
+  }
+
+  function fadeOut(element, duration) {
+    var opacity = 1;
+    var fadeEffect = setInterval(function () {
+      if (opacity > 0) {
+        opacity -= 0.1;
+        element.style.opacity = opacity;
+      } else {
+        clearInterval(fadeEffect);
+        element.style.display = 'none'; // 要素を完全に消す
+      }
+    }, duration / 10);
+  }
+
+  function addDigit(digit) {
+    for (let i = 1; i <= 8; i++) {
+      let box = document.getElementById('box' + i);
+      if (box.value == '') {
+        box.value = digit;
+        break;
+      }
+    }
+  }
+
+  function backspace() {
+    for (let i = 8; i > 0; i--) {
+      let box = document.getElementById('box' + i);
+      if (box.value != '') {
+        box.value = '';
+        break;
+      }
+    }
+  }
+
+  function clearInput() {
+    for (let i = 1; i <= 8; i++) {
+      document.getElementById('box' + i).value = '';
+    }
+  }
+
+  function addDigitToPassword(digit) {
+    for (let i = 1; i <= 8; i++) {
+      let box = document.getElementById('passwordBox' + i);
+      if (box.value == '') {
+        box.value = digit;
+        break;
+      }
+    }
+  }
+
+  function backspacePassword() {
+    for (let i = 8; i > 0; i--) {
+      let box = document.getElementById('passwordBox' + i);
+      if (box.value != '') {
+        box.value = '';
+        break;
+      }
+    }
+  }
+
+  function clearPasswordInput() {
+    for (let i = 1; i <= 8; i++) {
+      document.getElementById('passwordBox' + i).value = '';
+    }
+  }
+
+  document.addEventListener('keydown', function(event) {
+    if (document.getElementById('passwordFormContainer').style.display === 'block') {
+      // パスワードフォームが表示されている場合
+      if (event.key >= '0' && event.key <= '9') {
+        addDigitToPassword(event.key);
+      } else if (event.key === 'Backspace') {
+        backspacePassword();
+      } else if (event.key === 'Enter') {
+        submitPassword();
+      }
+    } else {
+      // メールアドレスフォームがアクティブな場合
+      if (event.key >= '0' && event.key <= '9') {
+        addDigit(event.key);
+      } else if (event.key === 'Backspace') {
+        backspace();
+      } else if (event.key === 'Enter') {
+        submitEmail();
+      }
+    }
+  });
+
+  // テンキーを無効にする関数
+  function disableKeypadPassword() {
+      var buttons = document.querySelectorAll('#keypadPassword button');
+      buttons.forEach(function(button) {
+          button.disabled = true; // ボタンを無効にする
+      });
+  }
+
+  // テンキーを有効にする関数
+  function enableKeypadPassword() {
+      var buttons = document.querySelectorAll('#keypadPassword button');
+      buttons.forEach(function(button) {
+          button.disabled = false; // ボタンを有効にする
+      });
+  }
+
+  var enteredEmail = ''; // メールアドレスを一時保存する変数
+
+  function submitEmail() {
+    if (loginSuccessful) return;
+    enteredEmail = '';
+    for (let i = 1; i <= 8; i++) {
+      enteredEmail += document.getElementById('box' + i).value;
+    }
+
+  if (!/^[0-9]{8}$/.test(enteredEmail)) {
+    var messages = [
+      'この手に握るは、運命を支配する八つの秘密の符号。彼の力を解き放つ鍵、闇と光の境界に立つ禁断の暗号…つまりメールアドレスは8桁の数字である必要があります。',
+      '宇宙の根源から召喚されし、八つの古代のルーン。それぞれが永遠の知識と力を秘め、真実の扉を開くための魔法の組み合わせ…つまりメールアドレスは8桁の数字である必要があります。',
+      '時空を超えし八つの神聖な数字、宿命を紡ぐ黄金の鍵。その組み合わせ一つ一つに宇宙の秘密が込められ、選ばれし者だけが真の力を手にすることを許される…つまりメールアドレスは8桁の数字である必要があります。',
+      '不死鳥の羽根に刻まれた、遥か古代より伝わる八つの神秘的符丁。それらは宇宙の始まりと終わりを知る鍵であり、全ての存在と運命を制御する究極のコード…つまりメールアドレスは8桁の数字である必要があります。'
+    ];
+
+    var randomMessage = messages[Math.floor(Math.random() * messages.length)];
+    alert(randomMessage);
+    clearInput();
+    return;
+  }
+
+    // メールアドレスフォームを即座に非表示
+    fadeOut(document.querySelector('.email-form-container'), 0);
+
+    // 100ms待機後にパスワードフォームを表示
+    setTimeout(function() {
+      fadeIn(document.getElementById('passwordFormContainer'), 1000);
+    }, 100);
+  }
+
+  document.getElementById('passwordSubmit').addEventListener('click', submitPassword);
+
+  function submitPassword() {
+    if (loginSuccessful) return;
+    let password = '';
+    for (let i = 1; i <= 8; i++) {
+      password += document.getElementById('passwordBox' + i).value;
+    }
+
+    // パスコードのフォーマット検証
+    if (!/^[0-9]{8}$/.test(password)) {
+      alert('パスコードは8桁の数字である必要があります。だからといって無造作にタイムアタックしないでくださいね…');
+      clearPasswordInput();
+      return;
+    }
+
+    disableKeypadPassword();
+    
+    // ログインボタンのテキストを「処理中…」に変更し、無効化
+    let loginButton = document.getElementById('passwordSubmit');
+    loginButton.textContent = '処理中…';
+    loginButton.disabled = true;
+
+    // サーバーへのリクエスト
+    google.script.run
+      .withSuccessHandler(handleLoginResponse)
+      .validateAndRecordEmail(enteredEmail, password);
+  }
+
+  var startTime; // この変数をグローバルスコープで宣言
+
+  function handleLoginResponse(response) {
+    if (response.status === 'ok') {
+      clearInterval(loginInterval); // タイマーをリセット
+      loggedInEmail = response.email; // ログイン成功時にメールアドレスを保存
+      loginSuccessful = true;
+
+      startTime = new Date().getTime(); // ログイン成功時の時刻を記録
+      startTimer();
+
+      setTimeout(function() {
+        alert('長時間使って下さりありがとうございます！利用時間の制限に達しました。\nまたのご利用をお待ちしています！\n\n＊20秒後に強制的に終了します。');
+        
+        // 20秒後にThankYouPageを表示するための追加のsetTimeout
+        setTimeout(function() {
+          showThankYouPage(); // ThankYouPageを表示
+        }, 20000); // 20秒 = 20000ミリ秒
+
+      }, 180000); // 最初の3分のタイマー
+
+      // パスワード入力フォームをフェードアウト
+      fadeOut(document.getElementById('passwordFormContainer'), 500);
+
+      // パスワードフォームのフェードアウトが完了するのを待ってから「ようこそ」メッセージを表示
+      setTimeout(function() {
+      var welcomeMessage = document.createElement('h1');
+      welcomeMessage.textContent = 'ようこそ';
+      welcomeMessage.style.opacity = 0; // 初期状態は透明
+      document.body.appendChild(welcomeMessage);
+
+      // メッセージをフェードイン
+      fadeIn(welcomeMessage, 1000);
+
+      // メッセージを一定時間表示した後にフェードアウトし、その後にチャット画面を表示
+      setTimeout(function() {
+        fadeOut(welcomeMessage, 1000);
+        setTimeout(function() {
+          fadeIn(document.getElementById('container'), 500);
+          document.body.removeChild(welcomeMessage); // メッセージをDOMから削除
+        }, 1000); // メッセージのフェードアウトが完了するのを待ってから実行
+      }, 2000); // メッセージを2秒間表示
+    }, 1000); // パスコードフォームのフェードアウトが完了するのを待ってから実行
+
+      setTimeout(function() {
+        appendMessage('【システム通知】こんにちは。学校のルールについての質問について回答することができます。このボットの使い方などについては「ヘルプ」と入力してご確認ください。\nまた、ChatGPTは間違いを犯すことがあります。', 'user2');
+      }, 5000);
+
+    } else {
+      // エラー応答に応じた処理
+      switch (response.status) {
+        case 'out_of_range':
+          alert('メールアドレスの値が範囲外です。この世界は思うより広くないのです…');
+          break;
+        case 'login_failed':
+          alert('パスコードが間違っています。Gmailにて配布したパスコードを入力すれば、会話の世界に潜り込めるでしょう。\n\nもしスマホ・もしくはPCを壊したくなる衝動に駆けられたら、お手数ですが生徒会まで駆け込んでください（重症には対応できません！すみません…）。');
+          break;
+        case 'duplicate':
+          alert('ありがとうございます。1日の使用制限を超えました（1日1回）。明日になればまた会話できます。お待ちしています。');
+          break;
+        case 'row_51_filled':
+          alert('おめでとうございます！あなたは5分間での50人目以降の訪問者となりました。\nコーヒー片手に新聞を読んでいれば、読み終わる頃にはアクセスできることでしょう！\n\n訳）51人以上の同時接続は制限されています。約5分たったら再度ログインしてください。')
+          break;
+        case 'timeout':
+          alert('すみません。実行時間が長いため、再度ログインをお願いします。')
+          break;
+        default:
+          alert('エラーが発生しました。エラーの第1候補としては、メールアドレスがデータベースに存在しないことが考えられます。');
+      }
+
+      // ログインボタンを元に戻す
+      let loginButton = document.getElementById('passwordSubmit');
+      loginButton.textContent = '利用規約に同意してログイン';
+      loginButton.disabled = false;
+      
+      // パスコード入力フォームをクリアして非表示
+      clearPasswordInput();
+      fadeOut(document.getElementById('passwordFormContainer'), 0);
+
+      enableKeypadPassword();
+
+      // メールアドレスフォームをクリアして再表示
+      clearInput();
+      setTimeout(function() {
+        fadeIn(document.querySelector('.email-form-container'), 1000);
+      }, 1000); // パスワードフォームのフェードアウトが完了するのを待ってから実行
+    }
+  }
+
+  document.getElementById('messageInput').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+          var sendButton = document.getElementById('sendButton');
+          if (!sendButton.disabled && loginSuccessful) {
+              sendMessage();
+          }
+      }
+  });
+
+  function startTimer() {
+    var endTime = new Date().getTime() + 180000; // 3分後の時間
+    var gracePeriod = 20000; // 猶予時間20秒
+    var inGracePeriod = false;
+
+    var interval = setInterval(function() {
+      var currentTime = new Date().getTime();
+      var remainingTime = endTime - currentTime;
+
+      if (remainingTime <= 0) {
+        if (!inGracePeriod) {
+          // 最初のタイマーが終了したとき、猶予時間を開始
+          inGracePeriod = true;
+          endTime = currentTime + gracePeriod; // 猶予時間の終了時刻を設定
+          updateInputPlaceholder('タイムアウト');
+        } else {
+          // 猶予時間が終了したときの処理
+          clearInterval(interval);
+          // ここに時間切れの処理を書く（例：ThankYouPageを表示する）
+        }
+      } else {
+        if (!inGracePeriod) {
+          // 通常のカウントダウン
+          var minutes = Math.floor(remainingTime / 60000);
+          var seconds = Math.floor((remainingTime % 60000) / 1000);
+          updateInputPlaceholder('ここに入力' + '（' + minutes + '分' + seconds + '秒' + '）');
+        } else {
+          // 猶予時間のカウントダウン
+          var graceSeconds = Math.floor(remainingTime / 1000);
+          updateInputPlaceholder('猶予時間' + graceSeconds + '秒');
+        }
+      }
+    }, 1000); // 1秒ごとに更新
+  }
+
+  function updateInputPlaceholder(text) {
+    document.getElementById('messageInput').placeholder = text;
+  }
+
+  function showThankYouPage() {
+    var thankYouContainer = document.getElementById('thankYouContainer');
+    fadeOut(document.getElementById('container'), 500);
+
+    // 500ms後にthankYouContainer要素をフェードインで表示する
+    setTimeout(function() {
+      fadeIn(thankYouContainer, 1000);
+    }, 700);
+  }
+  
+  // メッセージの送信回数を追跡するための変数
+  var messageCount = 0;
+
+  function sendMessage() {
+    var message = document.getElementById('messageInput').value;
+    if (message) {
+      // 文字数が51文字を超える場合
+      if (message.length > 50) {
+        appendMessage(message, 'user1');
+        appendMessage('【システム通知】文字数が多すぎます。50文字以内に収めてください。', 'user2');
+        document.getElementById('messageInput').value = '';
+        return; // ここで処理を終了
+      }
+
+      // メッセージが「ヘルプ」の場合の特別な処理
+      if (message.toLowerCase() === 'ヘルプ') {
+        appendMessage(message, 'user1');
+        appendMessage('【システム通知】このボットは学校のルールをChatGPTに学習させたものですので、提供される情報は不正確である場合があります。\n\n＜ご利用上の留意事項＞\n・1日に1回ログインできます\n・1日に3回までチャットできます。\n・午前8時から午後5時までの提供となります\n・利用時間は3分です', 'user2');
+        document.getElementById('messageInput').value = '';
+        return; // ここで処理を終了
+      }
+
+      // 通常のメッセージ処理
+      messageCount++;
+      if (messageCount <= 3) {
+        appendMessage(message + ' - ' + messageCount + '/3', 'user1');
+      } else {
+        appendMessage('【システム通知】1日の使用制限を超えました。後日お問い合わせください。', 'user2');
+        document.getElementById('messageInput').value = '';
+        messageInput.disabled = true; // 入力フィールドを無効化
+        return; // ここで処理を終了
+      }
+
+      document.getElementById('messageInput').value = '';
+      google.script.run.withSuccessHandler(appendMessage).chatGPT(loggedInEmail, message);
+    }
+  }
+
+  function appendMessage(message, userClass = 'user2') {
+    var chatContainer = document.getElementById('chatContainer');
+    var messageDiv = document.createElement('div');
+    messageDiv.className = 'message ' + userClass;
+
+    // 遅延時間のリスト
+    var delays = [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 300, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 200, 500, 800];
+
+    if (userClass === 'user2') {
+      var i = 0;
+      var sendButton = document.getElementById('sendButton');
+      sendButton.disabled = true; // アニメーション開始時にボタンを無効化
+      sendButton.textContent = '■'; // ボタンのテキストを変更
+
+      function addChar() {
+        if (i < message.length) {
+          messageDiv.innerText += message.charAt(i);
+          i++;
+          var delay = delays[Math.floor(Math.random() * delays.length)];
+
+          scrollToBottom(chatContainer, messageDiv);
+
+          setTimeout(addChar, delay);
+        } else {
+          // アニメーションが終了したら、送信ボタンを有効にし、テキストを元に戻す
+          sendButton.disabled = false;
+          sendButton.textContent = '▶'; // テキストを元の状態に戻す
+        }
+      }
+
+      chatContainer.appendChild(messageDiv);
+      addChar(); // 文字追加のアニメーションを開始
+    } else {
+      messageDiv.innerText = message;
+      chatContainer.appendChild(messageDiv);
+    }
+
+    scrollToBottom(chatContainer, messageDiv);
+  }
+
+  function scrollToBottom(container, element) {
+    // 新しいメッセージの下部までのコンテナの高さを計算
+    var scrollPosition = element.offsetTop + element.clientHeight - container.clientHeight;
+    // コンテナをスクロールする
+    container.scrollTo({ top: scrollPosition, behavior: 'smooth' });
+  }
+
+  </script>
+</body>
+</html>
