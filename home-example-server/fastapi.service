@@ -1,0 +1,16 @@
+[Unit]
+Description=FastAPI application
+After=network.target
+
+[Service]
+Type=simple
+User=example
+Group=example
+WorkingDirectory=/home/example/server
+ExecStart=/home/example/server/bin/uvicorn FastAPI:app --host 0.0.0.0 --port 8000
+Restart=always
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

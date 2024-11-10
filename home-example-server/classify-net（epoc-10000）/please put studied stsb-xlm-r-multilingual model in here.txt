@@ -1,0 +1,11 @@
+こちらに学習済み分類モデルを入れてください。
+
+実際の環境で行ったモデルは以下となります。
+sentence-transformers/stsb-xlm-r-multilingual
+
+上記のリポジトリにあるモデルを学習させ、プロンプトをカテゴライズするモデルを作成し、ここに学習済みモデルを配置してください。
+
+添付画像には実際に学習させたモデルの分布表です。
+
+参考にしたサイトの一部です。
+https://www.softbanktech.co.jp/special/blog/dx_station/2022/0032/

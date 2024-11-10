@@ -1,0 +1,6 @@
+こちらに分類モデルを入れてください。
+
+実際の環境で行ったモデルは以下となります。
+sentence-transformers/stsb-xlm-r-multilingual
+
+gitコマンドを使って上記のリポジトリをここにクローンしてください。

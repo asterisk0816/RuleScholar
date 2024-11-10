@@ -1,0 +1,40 @@
+systemctlによる常駐サーバーの構築
+
+
+serviceファイルを作成し、/etc/systemd/systemにファイルを置く。
+ファイルを置く際は管理者権限を起動しなければならない。
+sudo nautilus
+
+serviceファイルの例
+[Unit]
+Description=discription #説明を記す
+After=network.target #インターネットに接続後という条件指定
+
+[Service]
+Type=simple
+ExecStart=/home/example/server/bin/python /home/example/server/main.py #フルパス（前半venvの仮想環境パス、後半実行プログラムのパス）
+Restart=always #失敗しても自動的に再起動する
+StandardOutput=journal #ログ関係
+StandardError=journal #ログ関係
+
+[Install]
+WantedBy=multi-user.target
+
+
+このように作成し、以下のコマンドを打つ。
+
+# サービスの有効化
+sudo systemctl enable your_service.service
+
+# サービスの起動
+sudo systemctl start your_service.service
+
+# サービスの停止
+sudo systemctl stop your_service.service
+
+# サービスの状態確認
+sudo systemctl status your_service.service
+
+# プログラム更新
+sudo systemctl daemon-reload
+sudo systemctl restart your_service.service
