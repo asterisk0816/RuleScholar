@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" charset="UTF-8">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <title>RuleScholar</title>
+  <base target="_top">
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #f5f5f5;
+      width: 100%;
+      height: 100vh;
+      margin: 0;
+    }
+
+    * {
+      -webkit-user-select: none; /* Chrome, Safari, Opera用 */
+      -moz-user-select: none; /* Firefox用 */
+      -ms-user-select: none; /* Internet Explorer, Edge用 */
+      user-select: none; /* 標準構文 */
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif; /* ゴシック体フォントを指定 */
+    }
+
+    /* スクロール機能を保持しつつスクロールバーを隠す */
+    * {
+      -ms-overflow-style: none; /* IEとEdge用 */
+      scrollbar-width: none; /* Firefox用 */
+
+      /* Chrome, Safari用 */
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    * {
+      overflow: scroll; /* スクロール機能を有効にする */
+    }
+    
+    .banner {
+      width: 100%;
+      background-color: #ffffff;
+      border-bottom: 1px solid #d3d3d3;
+      padding: 12px 0;
+      text-align: left;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+    }
+
+    .banner img {
+      margin-left: 20px;
+      cursor: pointer;
+      display: inline-block;
+      height: 35px; /* バナーの高さに合わせて調整 */
+      width: auto; /* 画像の縦横比を維持 */
+    }
+
+    .email-form-container {
+      display: none;
+      margin-bottom: 20px;
+      text-align: center;
+      position: relative;
+      color: #011627;
+    }
+
+    .email-form-container2 {
+      display: none;
+      margin-bottom: 20px;
+      text-align: center;
+      position: relative;
+      color: #011627;
+    }
+
+    .email-boxes2 {
+      display: flex;
+      justify-content: space-between;
+      margin: 0 auto;
+    }
+
+    #keypadPassword {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .email-input,
+    .email-submit-button {
+      display: block;
+      margin: 10px auto;
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #f5f5f5;
+      border-radius: 50px;
+    }
+
+    .email-label {
+      margin-right: 10px;
+    }
+
+    .email-submit-button {
+      border: 2px solid #F71735; /* 枠線を背景色と同じ色に設定し、太さを2pxにします */
+      background-color: #f5f5f5; /* 背景色を維持 */
+      color: #011627; /* テキスト色 */
+      cursor: pointer; /* カーソルをポインターに設定 */
+    }
+
+
+    .email-submit-button:hover {
+      background-color: #F71735;
+      color: #f5f5f5;
+    }
+
+    .email-submit-button:disabled {
+        background-color: #ff8898; /* 無効時の背景色 */
+        color: #f5f5f5; /* 無効時のテキスト色 */
+        cursor: not-allowed; /* カーソルを変更 */
+        border: 1px #ff8898;
+    }
+
+    .email-submit-button:disabled:hover {
+        background-color: #ff8898; /* ホバー時の背景色変更を無効化 */
+    }
+
+
+    #keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .email-boxes {
+      display: flex;
+      justify-content: space-between;
+      margin: 0 auto;
+    }
+
+    .email-box {
+      width: 10px;
+      padding: 8px;
+      margin: 2px;
+      text-align: center;
+      border: none; /* 全ての境界線を消去 */
+      border-bottom: 1px solid #F71735; /* 下線のみを表示 */
+      background-color: #f5f5f5; /* 背景色をbody要素の背景色に合わせる */
+      color:#011627;
+      font-size: 16px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    #emailBoxes > input:not(:last-child) {
+      margin-right: 0;
+    }
+
+    .keypad-button {
+      padding: 10px;
+      border: none; /* 枠線を削除 */
+      background-color: #f5f5f5; /* 背景色 */
+      cursor: pointer;
+      font-size: 16px;
+      color: #011627;
+    }
+
+    .keypad-button:hover {
+      background-color: #f5f5f5;
+    }
+
+    #container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+
+    #chatContainer {
+      width: 80vmax;
+      height: 70vmin;
+      overflow-y: scroll;
+      margin: 1vmin;
+      padding: 1vmin;
+      background-color: #f5f5f5;
+      position: relative; /* 子要素の絶対位置指定の基準点 */
+      bottom: 10px;
+    }
+
+    .message {
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 15px;
+    }
+
+    .user1 {
+      border: 2px solid #F71735;
+      margin-top: 30px;
+      color: #011627;
+      padding: 20px;
+    }
+
+    .user2 {
+      border: 2px solid #41ead4;
+      margin-top: 15px;
+      color: #011627;
+      padding: 20px;
+    }
+
+    /* 背景用のdivスタイリング */
+    .message-input-background {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 3vh; /* 入力欄とボタンの下に来るように調整 */
+      height: calc(58px + 3vmin);
+      background-color: #f5f5f5; /* 実際の背景色に合わせてください */
+      z-index: 1; /* 入力欄とボタンより低いz-indexを設定 */
+    }
+
+    #messageInput {
+      z-index: 2;
+      padding: 20px;
+      margin-left: 100px;
+      border-radius: 50px;
+      font-size: 16px;
+      color: #011627;
+      background-color: #ffffff;
+      border: none;
+      outline: none;
+      position: absolute;
+      left: 1vmin; /* 左側の隙間を考慮 */
+      bottom: 3vmin; /* 下側の隙間を考慮 */
+      right: calc(1vmin + 58px + 10px + 100px); /* 右側のsendButtonとその隙間を考慮 */
+    }
+
+    #sendButton {
+      z-index: 2;
+      position: absolute;
+      margin-right: 100px;
+      right: 1vmin; /* 右側の隙間を考慮 */
+      bottom: 3vmin; /* 下側の隙間を考慮 */
+      width: 58px; /* ボタンの幅 */
+      height: 58px; /* ボタンの高さ */
+      padding: 10px;
+      background-color: #ffffff;
+      color: #011627;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 15px;
+      transition: background-color 0.3s;
+    }
+
+    #sendButton:disabled {
+      z-index: 2;
+      background-color: #ffffff; /* 無効化時の背景色 */
+      color: #011627; /* 無効化時のテキスト色 */
+      border: 2px solid #F71735;
+      pointer-events: none; /* カーソルを変更 */
+    }
+
+    #sendButton:disabled:hover {
+      z-index: 2;
+      background-color: #ffffff; /* hover効果を無効化 */
+      color: #011627; /* 無効化時のテキスト色 */
+      border: 2px solid #F71735;
+      pointer-events: none;
+    }
+
+    #sendButton:hover {
+      z-index: 2;
+      background-color: #F71735;
+      color: #011627;
+      border: none;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 65px;
+      height: 37px;
+    }
+
+    .switch input { 
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #f5f5f5; /* スイッチ本体の背景色 */
+      border: 2px solid #F71735; /* スイッチのボーダー色 */
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: #F71735; /* ハンドルの初期色を暗青色に変更 */
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    .slider:after {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: #41ead4; /* 新しいハンドルの色（例: 赤色） */
+      opacity: 0; /* 初期状態では見えない */
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    input:checked + .slider:before {
+      -webkit-transform: translateX(26px);
+      -ms-transform: translateX(26px);
+      transform: translateX(26px);
+      opacity: 0; /* チェックされたときに:beforeを隠す */
+    }
+
+    input:checked + .slider:after {
+      -webkit-transform: translateX(26px);
+      -ms-transform: translateX(26px);
+      transform: translateX(26px);
+      opacity: 1; /* チェックされたときに:afterを表示する */
+    }
+
+    input:focus + .slider {
+      box-shadow: 0 0 1px #41ead4;
+      border: 2px solid #41ead4;
+    }
+
+    .slider.round {
+      border-radius: 34px;
+    }
+
+    .slider.round:before, .slider.round:after {
+      border-radius: 50%;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="banner">
+    <a href="http://172.16.9.200/rulescholar3.html">
+      <img src="RuleScholar標準アイコン＆ロゴ（透過）.png" alt="Icon" ondragstart="return false;">
+    </a>
+  </div>
+  <div class="email-form-container" id="emailFormContainer">
+  <h1>ログイン</h1>
+    <div id="emailBoxes" class="email-boxes">
+      <input type="text" id="box1" class="email-box" maxlength="1" readonly>
+      <input type="text" id="box2" class="email-box" maxlength="1" readonly>
+      <input type="text" id="box3" class="email-box" maxlength="1" readonly>
+      <input type="text" id="box4" class="email-box" maxlength="1" readonly>
+      <input type="text" id="box5" class="email-box" maxlength="1" readonly>
+      <input type="text" id="box6" class="email-box" maxlength="1" readonly>
+      <input type="text" id="box7" class="email-box" maxlength="1" readonly>
+      <input type="text" id="box8" class="email-box" maxlength="1" readonly>
+    </div>
+  <span>@example.com</span>
+  <div id="keypad">
+    <button class="keypad-button" onclick="addDigit('1')">1</button>
+    <button class="keypad-button" onclick="addDigit('2')">2</button>
+    <button class="keypad-button" onclick="addDigit('3')">3</button>
+    <button class="keypad-button" onclick="addDigit('4')">4</button>
+    <button class="keypad-button" onclick="addDigit('5')">5</button>
+    <button class="keypad-button" onclick="addDigit('6')">6</button>
+    <button class="keypad-button" onclick="addDigit('7')">7</button>
+    <button class="keypad-button" onclick="addDigit('8')">8</button>
+    <button class="keypad-button" onclick="addDigit('9')">9</button>
+    <button class="keypad-button" onclick="backspace()">←</button>
+    <button class="keypad-button" onclick="addDigit('0')">0</button>
+    <button class="keypad-button" onclick="clearInput()">クリア</button>
+  </div>
+  <button id="emailSubmit" class="email-submit-button">パスコード入力画面へ</button>
+</div>
+
+<div class="email-form-container2" id="passwordFormContainer">
+  <h1>ログイン</h1>
+  <div id="passwordBoxes" class="email-boxes">
+    <input type="text" id="passwordBox1" class="email-box" maxlength="1" readonly>
+    <input type="text" id="passwordBox2" class="email-box" maxlength="1" readonly>
+    <input type="text" id="passwordBox3" class="email-box" maxlength="1" readonly>
+    <input type="text" id="passwordBox4" class="email-box" maxlength="1" readonly>
+    <input type="text" id="passwordBox5" class="email-box" maxlength="1" readonly>
+    <input type="text" id="passwordBox6" class="email-box" maxlength="1" readonly>
+    <input type="text" id="passwordBox7" class="email-box" maxlength="1" readonly>
+    <input type="text" id="passwordBox8" class="email-box" maxlength="1" readonly>
+  </div>
+  <span>パスコードを入力</span>
+  <div id="keypadPassword">
+    <button class="keypad-button" onclick="addDigitToPassword('1')">1</button>
+    <button class="keypad-button" onclick="addDigitToPassword('2')">2</button>
+    <button class="keypad-button" onclick="addDigitToPassword('3')">3</button>
+    <button class="keypad-button" onclick="addDigitToPassword('4')">4</button>
+    <button class="keypad-button" onclick="addDigitToPassword('5')">5</button>
+    <button class="keypad-button" onclick="addDigitToPassword('6')">6</button>
+    <button class="keypad-button" onclick="addDigitToPassword('7')">7</button>
+    <button class="keypad-button" onclick="addDigitToPassword('8')">8</button>
+    <button class="keypad-button" onclick="addDigitToPassword('9')">9</button>
+    <button class="keypad-button" onclick="backspacePassword()">←</button>
+    <button class="keypad-button" onclick="addDigitToPassword('0')">0</button>
+    <button class="keypad-button" onclick="clearPasswordInput()">クリア</button>
+  </div>
+  <button id="passwordSubmit" class="email-submit-button">利用規約に同意してログイン</button>
+</div>
+
+<div class="message-input-background"></div>
+
+<div id="container">
+  <div id="chatContainer"></div>
+  <input id="messageInput" type="text" placeholder="ここに入力">
+  <button id="sendButton" onclick="sendMessage()">▶</button>
+</div>
+
+<div id="switchContainer" style="margin-bottom: 20px;">
+  <label class="switch">
+    <input type="checkbox" id="toggleSwitch">
+    <span class="slider round"></span>
+  </label>
+</div>
+
+<script>
+  // // 時間制限コマンド
+  // window.onload = function() {
+  // var hour = new Date().getHours();
+  // var page;
+
+  // if (hour >= 8 && hour <= 16) {
+  //   } else {
+  //     page = 'timeout.html';
+  //   }
+  //   window.location.href = page;
+  // };
+
+  var loggedInEmail = ''; // ログインに成功したメールアドレスを保存する変数
+  var loginSuccessful = false; //ログイン成功フラグ
+
+  document.getElementById('emailSubmit').addEventListener('click', submitEmail);
+  document.getElementById('toggleSwitch').addEventListener('change', toggleEmailForm);
+
+  // キーボード入力を無効にする関数
+  function disableKeyboardInput() {
+    document.addEventListener('keydown', function(event) {
+      event.preventDefault(); // イベントのデフォルトの動作を防止
+      return false; // イベント伝播を停止
+    });
+  }
+
+  function toggleEmailForm() {
+    var emailForm = document.querySelector('.email-form-container');
+    if (this.checked) {
+      setTimeout(function() {
+        fadeIn(emailForm, 1000);
+        document.getElementById('switchContainer').style.display = 'none';
+      }, 500); // 500ミリ秒後に実行
+    } else {
+      setTimeout(function() {
+        fadeOut(emailForm, 1000);
+      }, 500); // 500ミリ秒後に実行
+    }
+  }
+
+  function fadeIn(element, duration) {
+    element.style.opacity = 0;
+    element.style.display = 'block';
+    var last = +new Date();
+    var tick = function() {
+      element.style.opacity = +element.style.opacity + (new Date() - last) / duration;
+      last = +new Date();
+      if (+element.style.opacity < 1) {
+        (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+      }
+    };
+    tick();
+  }
+
+  function fadeOut(element, duration) {
+    var opacity = 1;
+    var fadeEffect = setInterval(function () {
+      if (opacity > 0) {
+        opacity -= 0.1;
+        element.style.opacity = opacity;
+      } else {
+        clearInterval(fadeEffect);
+        element.style.display = 'none'; // 要素を完全に消す
+      }
+    }, duration / 10);
+  }
+
+  function addDigit(digit) {
+    for (let i = 1; i <= 8; i++) {
+      let box = document.getElementById('box' + i);
+      if (box.value == '') {
+        box.value = digit;
+        break;
+      }
+    }
+  }
+
+  function backspace() {
+    for (let i = 8; i > 0; i--) {
+      let box = document.getElementById('box' + i);
+      if (box.value != '') {
+        box.value = '';
+        break;
+      }
+    }
+  }
+
+  function clearInput() {
+    for (let i = 1; i <= 8; i++) {
+      document.getElementById('box' + i).value = '';
+    }
+  }
+
+  function addDigitToPassword(digit) {
+    for (let i = 1; i <= 8; i++) {
+      let box = document.getElementById('passwordBox' + i);
+      if (box.value == '') {
+        box.value = digit;
+        break;
+      }
+    }
+  }
+
+  function backspacePassword() {
+    for (let i = 8; i > 0; i--) {
+      let box = document.getElementById('passwordBox' + i);
+      if (box.value != '') {
+        box.value = '';
+        break;
+      }
+    }
+  }
+
+  function clearPasswordInput() {
+    for (let i = 1; i <= 8; i++) {
+      document.getElementById('passwordBox' + i).value = '';
+    }
+  }
+
+  document.addEventListener('keydown', function(event) {
+    if (document.getElementById('passwordFormContainer').style.display === 'block') {
+      // パスワードフォームが表示されている場合
+      if (event.key >= '0' && event.key <= '9') {
+        addDigitToPassword(event.key);
+      } else if (event.key === 'Backspace') {
+        backspacePassword();
+      } else if (event.key === 'Enter') {
+        submitPassword();
+      }
+    } else {
+      // メールアドレスフォームがアクティブな場合
+      if (event.key >= '0' && event.key <= '9') {
+        addDigit(event.key);
+      } else if (event.key === 'Backspace') {
+        backspace();
+      } else if (event.key === 'Enter') {
+        submitEmail();
+      }
+    }
+  });
+
+  // テンキーを無効にする関数
+  function disableKeypadPassword() {
+      var buttons = document.querySelectorAll('#keypadPassword button');
+      buttons.forEach(function(button) {
+          button.disabled = true; // ボタンを無効にする
+      });
+  }
+
+  // テンキーを有効にする関数
+  function enableKeypadPassword() {
+      var buttons = document.querySelectorAll('#keypadPassword button');
+      buttons.forEach(function(button) {
+          button.disabled = false; // ボタンを有効にする
+      });
+  }
+
+  var enteredEmail = ''; // メールアドレスを一時保存する変数
+
+  function submitEmail() {
+    if (loginSuccessful) return;
+    enteredEmail = '';
+    for (let i = 1; i <= 8; i++) {
+      enteredEmail += document.getElementById('box' + i).value;
+    }
+
+  if (!/^[0-9]{8}$/.test(enteredEmail)) {
+    var messages = [
+      'この手に握るは、運命を支配する八つの秘密の符号。彼の力を解き放つ鍵、闇と光の境界に立つ禁断の暗号…つまりメールアドレスは8桁の数字である必要があります。',
+      '宇宙の根源から召喚されし、八つの古代のルーン。それぞれが永遠の知識と力を秘め、真実の扉を開くための魔法の組み合わせ…つまりメールアドレスは8桁の数字である必要があります。',
+      '時空を超えし八つの神聖な数字、宿命を紡ぐ黄金の鍵。その組み合わせ一つ一つに宇宙の秘密が込められ、選ばれし者だけが真の力を手にすることを許される…つまりメールアドレスは8桁の数字である必要があります。',
+      '不死鳥の羽根に刻まれた、遥か古代より伝わる八つの神秘的符丁。それらは宇宙の始まりと終わりを知る鍵であり、全ての存在と運命を制御する究極のコード…つまりメールアドレスは8桁の数字である必要があります。'
+    ];
+
+    var randomMessage = messages[Math.floor(Math.random() * messages.length)];
+    alert(randomMessage);
+    clearInput();
+    return;
+  }
+
+    // メールアドレスフォームを即座に非表示
+    fadeOut(document.querySelector('.email-form-container'), 0);
+
+    // 100ms待機後にパスワードフォームを表示
+    setTimeout(function() {
+      fadeIn(document.getElementById('passwordFormContainer'), 1000);
+    }, 100);
+  }
+
+  document.getElementById('passwordSubmit').addEventListener('click', submitPassword);
+
+  function submitPassword() {
+    if (loginSuccessful) return;
+    let password = '';
+    for (let i = 1; i <= 8; i++) {
+      password += document.getElementById('passwordBox' + i).value;
+    }
+
+    // パスコードのフォーマット検証
+    if (!/^[0-9]{8}$/.test(password)) {
+      alert('パスコードは8桁の数字である必要があります。だからといって無造作にタイムアタックしないでくださいね…');
+      clearPasswordInput();
+      return;
+    }
+
+    disableKeypadPassword();
+    
+    // ログインボタンのテキストを「処理中…」に変更し、無効化
+    let loginButton = document.getElementById('passwordSubmit');
+    loginButton.textContent = '処理中…';
+    loginButton.disabled = true;
+
+    // FastAPIサーバーへのリクエストを送信する部分の準備
+    sendRequestToFastAPI(enteredEmail, password);
+  }
+
+  // FastAPIサーバーにログイン情報を送信
+  function sendRequestToFastAPI(enteredEmail, password) {
+    // FastAPIエンドポイント
+    const url = "http://172.16.9.200:8000/api/validateAndRecordEmail";
+
+    // リクエストのボディデータ
+    const data = {
+      email: enteredEmail,
+      password: password
+    };
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+    .then(response => response.json().then(data => ({ status: response.status, body: data })))
+    .then(({ status, body }) => {
+      if (status !== 200) {
+        // API由来のエラーをここでハンドリング
+        switch (status) {
+          case 400:
+            if (body.detail.includes("Request out of allowed time")) {
+              alert('リクエストが時間外です。');
+            } else if (body.detail.includes("Access restricted due to specific data presence")) {
+              alert('おめでとうございます！あなたは5分間での50人目以降の訪問者となりました。\nコーヒー片手に新聞を読んでいれば、読み終わる頃にはアクセスできることでしょう！\n\n訳）51人以上の同時接続は制限されています。約5分たったら再度ログインしてください。');
+            } else if (body.detail.includes("File path is required")) {
+              alert('ファイルパスが指定されていません。お手数ですが生徒会へお問い合わせください。（ファイルパス検証関数エラー）')
+            }
+            break;
+          case 401:
+            if (body.detail.includes("無効なアカウント")) {
+              alert('無効なアカウントです。運営者にアカウントを削除された可能性があります。');
+            } else {
+              alert('パスコードが間違っています。正しいパスコードを入力すれば、会話の世界に潜り込めるでしょう。\n\nもしスマホ・もしくはPCを壊したくなる衝動に駆けられたら、お手数ですが生徒会まで駆け込んでください（重症には対応できません！すみません…）。');
+            }
+            break;
+          case 422:
+            alert('ちょっと！！そこの君！\n世界を飛びすぎです！範囲内の数字を入力してください！');
+            break;
+          case 404:
+            if (body.detail.includes("Login data file not found")) {
+              alert('ログインデータが見つかりません。お手数ですが生徒会までお問い合わせください。');
+            } else if (body.detail.includes("File not found")) {
+              alert('ファイルパスが見つかりませんでした。お手数ですが生徒会までお問い合わせください。（ファイルパス検証関数エラー）')
+            }
+            break;
+          case 409:
+            alert('ありがとうございます。1日の使用制限を超えました（1日1回）。明日になればまた会話できます。お待ちしています。');
+            break;
+          default:
+            alert(`エラーが発生しました。エラーコード: ${status}`);
+        }
+
+        // ログインボタンを元に戻す
+        let loginButton = document.getElementById('passwordSubmit');
+        loginButton.textContent = '利用規約に同意してログイン';
+        loginButton.disabled = false;
+        
+        // パスコード入力フォームをクリアして非表示
+        clearPasswordInput();
+        fadeOut(document.getElementById('passwordFormContainer'), 0);
+
+        enableKeypadPassword();
+
+        // メールアドレスフォームをクリアして再表示
+        clearInput();
+        setTimeout(function() {
+          fadeIn(document.querySelector('.email-form-container'), 1000);
+        }, 1000); // パスワードフォームのフェードアウトが完了するのを待ってから実行
+        
+        return; // これ以上の処理を防ぐ
+      }
+
+      // ステータスコードが200の場合、レスポンスをhandleLoginResponseに渡す
+      handleLoginResponse(body);
+    })
+  }
+
+
+  function handleLoginResponse(response) {
+    if (response.status === 'ok') {
+      loggedInEmail = response.email; // ログイン成功時にメールアドレスを保存
+      loginSuccessful = true;
+
+      setPlaceholderText();
+
+      // パスワード入力フォームをフェードアウト
+      fadeOut(document.getElementById('passwordFormContainer'), 500);
+
+      // パスワードフォームのフェードアウトが完了するのを待ってから「ようこそ」メッセージを表示
+      setTimeout(function() {
+        var welcomeMessage = document.createElement('h1');
+        welcomeMessage.textContent = 'ようこそ';
+        welcomeMessage.style.opacity = 0; // 初期状態は透明
+        welcomeMessage.style.color = '#011627'; // テキストの色を白に設定
+        document.body.appendChild(welcomeMessage);
+
+        // メッセージをフェードイン
+        fadeIn(welcomeMessage, 1000);
+
+        // メッセージを一定時間表示した後にフェードアウトし、その後にチャット画面を表示
+        setTimeout(function() {
+          fadeOut(welcomeMessage, 1000);
+          setTimeout(function() {
+            fadeIn(document.getElementById('container'), 500);
+            document.body.removeChild(welcomeMessage); // メッセージをDOMから削除
+          }, 1000); // メッセージのフェードアウトが完了するのを待ってから実行
+        }, 2000); // メッセージを2秒間表示
+      }, 1000); // パスコードフォームのフェードアウトが完了するのを待ってから実行
+
+      setTimeout(function() {
+        appendMessage('【システム通知】こんにちは。学校のルールについての質問について回答することができます。このボットの使い方などについては「ヘルプ」と入力してご確認ください。\nまた、ChatGPTは間違いを犯すことがあります。', 'user2');
+      }, 5000);
+    }
+  }
+
+  document.getElementById('messageInput').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+          var sendButton = document.getElementById('sendButton');
+          if (!sendButton.disabled && loginSuccessful) {
+              sendMessage();
+          }
+      }
+  });
+
+  function setPlaceholderText() {
+    updateInputPlaceholder('学校のルールについて何でも聞いてください');
+  }
+
+  function updateInputPlaceholder(text) {
+    document.getElementById('messageInput').placeholder = text;
+  }
+  
+  // メッセージの送信回数を追跡するための変数
+  var messageCount = 0;
+
+  function sendMessage() {
+    var message = document.getElementById('messageInput').value;
+    if (message) {
+      // 文字数が51文字を超える場合
+      if (message.length > 50) {
+        appendMessage(message, 'user1');
+        appendMessage('【システム通知】文字数が多すぎます。50文字以内に収めてください。', 'user2');
+        document.getElementById('messageInput').value = '';
+        return; // ここで処理を終了
+      }
+
+      // メッセージが「ヘルプ」の場合の特別な処理
+      if (message.toLowerCase() === 'ヘルプ') {
+        appendMessage(message, 'user1');
+        appendMessage('【システム通知】このボットは生徒会によって運営されている「生徒会総合サイト」の拡張機能の一部として提供されています。\nこのボットは学校生活のしおりを検索してChatGPTに投げているため、検索の精度によっては提供される情報は不正確である場合があります。\n\n＜ご利用上の留意事項＞\n・1日に1回ログインできます\n・1日に3回までチャットできます\n・午前8時から午後4時までの提供となります', 'user2');
+        document.getElementById('messageInput').value = '';
+        return; // ここで処理を終了
+      }
+
+      // 通常のメッセージ処理
+      messageCount++;
+      if (messageCount <= 3) {
+        appendMessage(message + ' - ' + messageCount + '/3', 'user1');
+      } else {
+        appendMessage('【システム通知】1日の使用制限を超えました。後日お問い合わせください。', 'user2');
+        document.getElementById('messageInput').value = '';
+        messageInput.disabled = true; // 入力フィールドを無効化
+        return; // ここで処理を終了
+      }
+
+      document.getElementById('messageInput').value = '';
+      chatGPTbackground(loggedInEmail, message);
+    }
+  }
+
+  async function chatGPTbackground(loggedInEmail, message) {
+    // FastAPIエンドポイント
+    const url = "http://172.16.9.200:8000/api/chatGPTbackend";
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({loggedInEmail, message}),
+      });
+
+      const responseData = await response.json(); // 応答データの取得
+
+      if (!response.ok) {
+        // バックエンドからの`detail`に基づくエラーメッセージのカスタマイズ
+        let errorMessage = "【システム通知】エラーが発生しました。再試行してください。"; // デフォルトのエラーメッセージ
+        if (responseData.detail) {
+          switch (responseData.detail) {
+            case "Request out of allowed time":
+              errorMessage = "【システム通知】リクエストは時間外です。";
+              break;
+            case "Message contains inappropriate content":
+              errorMessage = "【システム通知】メッセージに不適切な内容が含まれています。";
+              break;
+            // 他の`detail`メッセージに対するカスタムメッセージを追加できます
+            default:
+              errorMessage = responseData.detail; // バックエンドからのカスタムメッセージを使用
+          }
+        }
+        appendMessage(errorMessage, 'user2'); // カスタマイズされたエラーメッセージを表示
+        return; // ここで処理を終了
+      }
+
+      // 成功した応答の処理
+      appendMessage(responseData.response + "\n＊ChatGPTは間違いを犯すことがあります。", 'user2'); // 応答メッセージを表示
+    } catch (error) {
+      // ネットワークエラーやその他の例外の処理
+      console.error("通信に失敗しました:", error);
+      appendMessage("【システム通知】通信エラーが発生しました。ネットワークを確認してください。", 'user2');
+    }
+  }
+
+  function appendMessage(message, userClass = 'user2') {
+    var chatContainer = document.getElementById('chatContainer');
+    var messageDiv = document.createElement('div');
+    messageDiv.className = 'message ' + userClass;
+
+    // 遅延時間のリスト
+    var delays = [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 300, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 200, 500, 800];
+
+    if (userClass === 'user2') {
+      var i = 0;
+      var sendButton = document.getElementById('sendButton');
+      sendButton.disabled = true; // アニメーション開始時にボタンを無効化
+      sendButton.textContent = '■'; // ボタンのテキストを変更
+
+      function addChar() {
+        if (i < message.length) {
+          messageDiv.innerText += message.charAt(i);
+          i++;
+          var delay = delays[Math.floor(Math.random() * delays.length)];
+
+          scrollToBottom(chatContainer, messageDiv);
+
+          setTimeout(addChar, delay);
+        } else {
+          // アニメーションが終了したら、送信ボタンを有効にし、テキストを元に戻す
+          sendButton.disabled = false;
+          sendButton.textContent = '▶'; // テキストを元の状態に戻す
+        }
+      }
+
+      chatContainer.appendChild(messageDiv);
+      addChar(); // 文字追加のアニメーションを開始
+    } else {
+      messageDiv.innerText = message;
+      chatContainer.appendChild(messageDiv);
+    }
+
+    scrollToBottom(chatContainer, messageDiv);
+  }
+
+  function scrollToBottom(container, element) {
+    // 新しいメッセージの下部までのコンテナの高さを計算
+    var scrollPosition = element.offsetTop + element.clientHeight - container.clientHeight;
+
+    var extraScroll = 20; // 追加でスクロールさせたいピクセル数
+    scrollPosition += extraScroll;
+    
+    // コンテナをスクロールする
+    container.scrollTo({ top: scrollPosition, behavior: 'smooth' });
+  }
+
+  </script>
+</body>
+</html>
