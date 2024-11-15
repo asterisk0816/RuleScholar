@@ -25,6 +25,7 @@ RuleScholarは以下の2つの主要なディレクトリに分かれていま�
 RuleScholarの動作には以下の環境およびツールが必要です。
 
 - **OS**: Ubuntu 22.04 LTS
+- **GPU**: nVIDIA製のRTXシリーズ以降のGPU
 - **Webサーバー**: Apache
 - **バックエンドフレームワーク**: FastAPI
 - **仮想環境**: venv
